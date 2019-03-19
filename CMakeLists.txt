@@ -24,6 +24,44 @@ if(MSVC)
     set(CEF_CMAKE_OUTPUT_DIR ${CEF_CMAKE_OUTPUT_DIR}/$<CONFIG>)
 endif()
 
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    set(OS_MACOSX 1)
+    set(OS_POSIX 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(OS_LINUX 1)
+    set(OS_POSIX 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    set(OS_WINDOWS 1)
+else()
+    message(FATAL_ERROR "CEF-CMake: Unsupported target platform")
+endif()
+
+# Set a default build type if none was specified
+# MSVC has no Default build type anyway, so skip this
+if(NOT MSVC AND NOT CMAKE_BUILD_TYPE)
+    message(STATUS "CEF-CMake: Setting build type to 'Debug' as none was specified.")
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+option(CEF_USE_SANDBOX "CEF-CMake: Enable or disable use of the CEF sandbox." ON)
+
+if(MSVC AND CEF_USE_SANDBOX)
+    message(STATUS "CEF-CMake: Replacing /MD->/MT in C and CXX_FLAGS. Required by CEF sandbox.")
+    set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+    )
+    foreach(CompilerFlag ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+endif()
+
 if(OS_LINUX)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(cefName cef_binary_${CEF_VERSION}_linux64)
@@ -57,24 +95,6 @@ if(NOT EXISTS ${cefArchive})
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif()
-
-option(CEF_USE_SANDBOX "CEF-CMake: Enable or disable use of the CEF sandbox." ON)
-
-if(MSVC AND CEF_USE_SANDBOX)
-    message(STATUS "CEF-CMake: Replacing /MD->/MT in C and CXX_FLAGS. Required by CEF sandbox.")
-    set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE
-    )
-    foreach(CompilerFlag ${CompilerFlags})
-        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-    endforeach()
-endif()
-
 
 include(cefdll_wrapper_sources.cmake)
 
