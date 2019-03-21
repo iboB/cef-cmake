@@ -1,10 +1,14 @@
-# CEF-CMake
+# CEF-CMake 1.0.0
 # Copyright (c) 2019 Borislav Stanimirov
 #
 # Distributed under the MIT Software License
 # See accompanying file LICENSE.txt or copy at
 # http://opensource.org/licenses/MIT
 #
+if(NOT CEF_CMAKE_INCLUDED)
+    message(FATAL_ERROR "CEF-CMake: Configuration not included. You need to include `cef_cmake` in your root CMakeLists.txt file")
+endif()
+
 if(NOT CEF_VERSION)
     set(CEF_VERSION 3.3626.1894.g90eb8cc)
     message(STATUS "CEF-CMake: CEF_VERSION not specified. Defaulting to ${CEF_VERSION}")
@@ -12,8 +16,7 @@ endif()
 
 if(NOT CEF_CMAKE_OUTPUT_DIR)
     if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-        message(STATUS "CEF-CMake: CMAKE_RUNTIME_OUTPUT_DIRECTORY was not specified. Defaulting to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+        message(SEND_ERROR "CEF-CMake: Neither CEF_CMAKE_OUTPUT_DIR nor CMAKE_RUNTIME_OUTPUT_DIRECTORY was specified. You need to specify one for the binary assets of CEF to be copied.")
     endif()
     # CEF_CMAKE_OUTPUT_DIR is used to copy the required shared libraries next to the executable
     set(CEF_CMAKE_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -24,51 +27,13 @@ if(MSVC)
     set(CEF_CMAKE_OUTPUT_DIR ${CEF_CMAKE_OUTPUT_DIR}/$<CONFIG>)
 endif()
 
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-    set(OS_MACOSX 1)
-    set(OS_POSIX 1)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-    set(OS_LINUX 1)
-    set(OS_POSIX 1)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-    set(OS_WINDOWS 1)
-else()
-    message(FATAL_ERROR "CEF-CMake: Unsupported target platform")
-endif()
-
-# Set a default build type if none was specified
-# MSVC has no Default build type anyway, so skip this
-if(NOT MSVC AND NOT CMAKE_BUILD_TYPE)
-    message(STATUS "CEF-CMake: Setting build type to 'Debug' as none was specified.")
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
-    # Set the possible values of build type for cmake-gui
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-option(CEF_USE_SANDBOX "CEF-CMake: Enable or disable use of the CEF sandbox." ON)
-
-if(MSVC AND CEF_USE_SANDBOX)
-    message(STATUS "CEF-CMake: Replacing /MD->/MT in C and CXX_FLAGS. Required by CEF sandbox.")
-    set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE
-    )
-    foreach(CompilerFlag ${CompilerFlags})
-        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-    endforeach()
-endif()
-
-if(OS_LINUX)
+if(CEF_CMAKE_OS_LINUX)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(cefName cef_binary_${CEF_VERSION}_linux64)
     else()
         set(cefName cef_binary_${CEF_VERSION}_linux32)
     endif()
-elseif(OS_WINDOWS)
+elseif(CEF_CMAKE_OS_WINDOWS)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(cefName cef_binary_${CEF_VERSION}_windows64)
     else()
@@ -132,7 +97,7 @@ add_custom_command(TARGET cefdll_wrapper POST_BUILD
         ${CEF_CMAKE_OUTPUT_DIR}
 )
 
-if(OS_LINUX)
+if(CEF_CMAKE_OS_LINUX)
     target_link_libraries(cefdll_wrapper INTERFACE
         X11
         pthread
@@ -165,7 +130,7 @@ if(OS_LINUX)
         )
     endif()
 
-elseif(OS_WINDOWS)
+elseif(CEF_CMAKE_OS_WINDOWS)
 
     target_compile_definitions(cefdll_wrapper PUBLIC
         -DNOMINMAX

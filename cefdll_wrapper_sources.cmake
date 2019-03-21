@@ -35,7 +35,7 @@ cc_src_group(cefdll_wrapper~base srcs
     ${wdir}/base/cef_weak_ptr.cc
 )
 
-if(OS_POSIX)
+if(CEF_CMAKE_OS_POSIX)
     cc_src_group(cefdll_wrapper~base srcs
         ${wdir}/base/cef_string16.cc
     )
@@ -419,12 +419,12 @@ cc_src_group(include srcs
     ${cefName}/include/cef_zip_reader.h
 )
 
-if(OS_MACOSX)
+if(CEF_CMAKE_OS_MACOSX)
     cc_src_group(include srcs
         ${cefName}/include/cef_application_mac.h
         ${cefName}/include/cef_sandbox_mac.h
     )
-elseif(OS_WINDOWS)
+elseif(CEF_CMAKE_OS_WINDOWS)
     cc_src_group(include srcs
         ${cefName}/include/cef_sandbox_win.h
     )
@@ -465,18 +465,18 @@ cc_src_group(include~base~internal srcs
     ${cefName}/include/base/internal/cef_thread_checker_impl.h
 )
 
-if(OS_LINUX)
+if(CEF_CMAKE_OS_LINUX)
     cc_src_group(include~base~internal srcs
         ${cefName}/include/base/internal/cef_atomicops_arm_gcc.h
         ${cefName}/include/base/internal/cef_atomicops_atomicword_compat.h
         ${cefName}/include/base/internal/cef_atomicops_x86_gcc.h
     )
-elseif(OS_MACOSX)
+elseif(CEF_CMAKE_OS_MACOSX)
     cc_src_group(include~base~internal srcs
         ${cefName}/include/base/internal/cef_atomicops_atomicword_compat.h
         ${cefName}/include/base/internal/cef_atomicops_mac.h
     )
-elseif(OS_WINDOWS)
+elseif(CEF_CMAKE_OS_WINDOWS)
     cc_src_group(include~base~internal srcs
         ${cefName}/include/base/internal/cef_atomicops_x86_msvc.h
         ${cefName}/include/base/internal/cef_bind_internal_win.h
@@ -598,17 +598,17 @@ cc_src_group(include~internal srcs
     ${cefName}/include/internal/cef_types.h
     ${cefName}/include/internal/cef_types_wrappers.h
 )
-if(OS_LINUX)
+if(CEF_CMAKE_OS_LINUX)
     cc_src_group(include~internal srcs
         ${cefName}/include/internal/cef_linux.h
         ${cefName}/include/internal/cef_types_linux.h
     )
-elseif(OS_MACOSX)
+elseif(CEF_CMAKE_OS_MACOSX)
     cc_src_group(include~internal srcs
         ${cefName}/include/internal/cef_mac.h
         ${cefName}/include/internal/cef_types_mac.h
     )
-elseif(OS_WINDOWS)
+elseif(CEF_CMAKE_OS_WINDOWS)
     cc_src_group(include~internal srcs
         ${cefName}/include/internal/cef_types_win.h
         ${cefName}/include/internal/cef_win.h
@@ -654,7 +654,7 @@ cc_src_group(include~wrapper srcs
     ${cefName}/include/wrapper/cef_xml_object.h
     ${cefName}/include/wrapper/cef_zip_archive.h
 )
-if(OS_MACOSX)
+if(CEF_CMAKE_OS_MACOSX)
     cc_src_group(include~wrapper srcs
         ${cefName}/include/wrapper/cef_library_loader.h
     )
@@ -673,7 +673,7 @@ cc_src_group(cefdll_wrapper~wrapper srcs
     ${wdir}/wrapper/libcef_dll_wrapper.cc
     ${wdir}/wrapper/libcef_dll_wrapper2.cc
 )
-if(OS_MACOSX)
+if(CEF_CMAKE_OS_MACOSX)
     cc_src_group(cefdll_wrapper~wrapper srcs
         ${wdir}/wrapper/cef_library_loader_mac.mm
         ${wdir}/wrapper/libcef_dll_dylib.cc
