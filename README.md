@@ -1,6 +1,6 @@
 # CEF-CMake
 
-CMake files for sane usage of [CEF (the Chromium Embedded Framework)](https://bitbucket.org/chromiumembedded/cef-project/src/master/).
+CMake files for sane usage of [CEF (the Chromium Embedded Framework)](https://bitbucket.org/chromiumembedded/cef-project/overview).
 
 *This project is still a work in progress. Things will change quickly with no regard for backwards compatibility until this note is removed.*
 
@@ -15,7 +15,7 @@ The CEF project provide their own CMake files, but they have several outstanding
 
 Hence projects which don't want to conform to any of this are forced to use their own solutions.
 
-CEF-CMake fixes this and provides a bit more features to make the usage of CEF easy
+**CEF-CMake** fixes this and provides a `CMakeLists.txt` file to make using CEF easy.
 
 ## CEF-CMake features
 
@@ -28,7 +28,16 @@ CEF-CMake fixes this and provides a bit more features to make the usage of CEF e
 
 ## Usage
 
-*tbd*
+* You can have this project as a submodule of yours or somewhere in your directory tree. Doesn't matter.
+* In your root `CMakeLists.txt` include `<this_project_dir>/cmake/cef_cmake.cmake`. 
+* Add this project's directory as a subdirectory. This defines the static library target `cefdll_wrapper`
+* Add `cefdll_wrapper` to the link libraries of your CEF executables  
+
+*Mac-specific instructions to come*
+
+## Example
+
+Another project of mine - [cef-demos](https://github.com/iboB/cef-demos) - includes this one as a submodule and provides some CEF demos, all using CEF-CMake.
 
 ## License and copyright
 
