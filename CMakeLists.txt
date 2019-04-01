@@ -61,7 +61,9 @@ if(NOT EXISTS ${cefArchive})
     )
 endif()
 
-include(cefdll_wrapper_sources.cmake)
+set(srcs)
+set(wdir ${cefName}/libcef_dll)
+file(GLOB_RECURSE srcs "${wdir}/*.cc" "${wdir}/*.mm" "${wdir}/*.h" "${cefName}/include/*.h")
 
 add_library(cefdll_wrapper STATIC ${srcs})
 
