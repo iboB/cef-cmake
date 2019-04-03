@@ -44,6 +44,8 @@ else()
 endif()
 
 set(cefArchiveURL http://opensource.spotify.com/cefbuilds/${cefName}.tar.bz2)
+# fix the url as the version may contain pluses
+string(REGEX REPLACE "\\+" "%2B" cefArchiveURL ${cefArchiveURL})
 set(cefArchive ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}.tar.bz2)
 
 if(NOT EXISTS ${cefArchive})
