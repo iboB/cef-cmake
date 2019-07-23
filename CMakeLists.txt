@@ -10,7 +10,7 @@ if(NOT CEF_CMAKE_INCLUDED)
 endif()
 
 if(NOT CEF_VERSION)
-    set(CEF_VERSION 3.3626.1894.g90eb8cc)
+    set(CEF_VERSION 75.1.4+g4210896+chromium-75.0.3770.100)
     message(STATUS "CEF-CMake: CEF_VERSION not specified. Defaulting to ${CEF_VERSION}")
 endif()
 
@@ -161,7 +161,6 @@ elseif(CEF_CMAKE_OS_WINDOWS)
             ${CEF_CMAKE_OUTPUT_DIR}/swiftshader
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/chrome_elf.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/d3dcompiler_43.dll
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/d3dcompiler_47.dll
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libcef.dll
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libEGL.dll
