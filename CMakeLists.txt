@@ -82,6 +82,7 @@ target_compile_definitions(cefdll_wrapper
 
 target_include_directories(cefdll_wrapper
     PUBLIC ${cefName}
+    INTERFACE include
 )
 
 add_custom_command(TARGET cefdll_wrapper POST_BUILD
