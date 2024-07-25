@@ -10,7 +10,7 @@ if(NOT CEF_CMAKE_INCLUDED)
 endif()
 
 if(NOT CEF_VERSION)
-    set(CEF_VERSION 75.1.4+g4210896+chromium-75.0.3770.100)
+    set(CEF_VERSION 126.2.18+g3647d39+chromium-126.0.6478.183)
     message(STATUS "CEF-CMake: CEF_VERSION not specified. Defaulting to ${CEF_VERSION}")
 endif()
 
@@ -20,11 +20,6 @@ if(NOT CEF_CMAKE_OUTPUT_DIR)
     endif()
     # CEF_CMAKE_OUTPUT_DIR is used to copy the required shared libraries next to the executable
     set(CEF_CMAKE_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    message(STATUS "CEF-CMake: CEF_CMAKE_OUTPUT_DIR was not specified. Defaulting to CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CEF_CMAKE_OUTPUT_DIR}")
-endif()
-
-if(MSVC)
-    set(CEF_CMAKE_OUTPUT_DIR ${CEF_CMAKE_OUTPUT_DIR}/$<CONFIG>)
 endif()
 
 if(CEF_CMAKE_OS_LINUX)
@@ -93,11 +88,9 @@ add_custom_command(TARGET cefdll_wrapper POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/locales
         ${CEF_CMAKE_OUTPUT_DIR}/locales
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/cef.pak
-        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/cef_100_percent.pak
-        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/cef_200_percent.pak
-        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/cef_extensions.pak
-        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/devtools_resources.pak
+        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/chrome_100_percent.pak
+        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/chrome_200_percent.pak
+        ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/resources.pak
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/icudtl.dat
         ${CEF_CMAKE_OUTPUT_DIR}
 )
@@ -110,21 +103,24 @@ if(CEF_CMAKE_OS_LINUX)
         optimized ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Release/libcef.so
     )
 
+    if (NOT CEF_USE_SANDBOX)
+        set(CEF_SANDBOX_BINARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/chrome-sandbox)
+    endif()
+
     add_custom_command(TARGET cefdll_wrapper POST_BUILD
         COMMENT "cefdll_wrapper: Copying CEF binaries"
         COMMAND ${CMAKE_COMMAND} -E
             make_directory ${CEF_CMAKE_OUTPUT_DIR}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/swiftshader
-            ${CEF_CMAKE_OUTPUT_DIR}/swiftshader
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/chrome-sandbox
+            ${CEF_SANDBOX_BINARY_PATH}
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libcef.so
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libEGL.so
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libGLESv2.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/natives_blob.bin
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/snapshot_blob.bin
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/v8_context_snapshot.bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/vk_swiftshader_icd.json
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libvk_swiftshader.so
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libvulkan.so.1
             ${CEF_CMAKE_OUTPUT_DIR}
     )
 
@@ -153,22 +149,29 @@ elseif(CEF_CMAKE_OS_WINDOWS)
         optimized ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Release/libcef.lib
     )
 
+    if ($<CONFIG> STREQUAL "RelWithDebInfo" OR $<CONFIG> STREQUAL "Release" OR $<CONFIG> STREQUAL "MinSizeRel")
+        set(CEF_RESOURCE_CONFIG "Release")
+    else()
+        set(CEF_RESOURCE_CONFIG "Debug")
+    endif()
+
     add_custom_command(TARGET cefdll_wrapper POST_BUILD
         COMMENT "cefdll_wrapper: Copying CEF binaries"
         COMMAND ${CMAKE_COMMAND} -E
             make_directory ${CEF_CMAKE_OUTPUT_DIR}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/swiftshader
-            ${CEF_CMAKE_OUTPUT_DIR}/swiftshader
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/chrome_elf.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/d3dcompiler_47.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libcef.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libEGL.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libGLESv2.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/natives_blob.bin
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/snapshot_blob.bin
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/v8_context_snapshot.bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/chrome_elf.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/d3dcompiler_47.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/dxcompiler.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/dxil.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libcef.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libEGL.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libGLESv2.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/snapshot_blob.bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/v8_context_snapshot.bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vk_swiftshader_icd.json
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vk_swiftshader.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vulkan-1.dll
             ${CEF_CMAKE_OUTPUT_DIR}
     )
 
