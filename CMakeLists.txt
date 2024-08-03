@@ -102,11 +102,13 @@ if(CEF_CMAKE_OS_LINUX)
         debug ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Debug/libcef.so
         optimized ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Release/libcef.so
     )
-    
-    if (NOT $<CONFIG> STREQUAL "Debug")
-        set(CEF_RESOURCE_CONFIG "Release")
-    else()
+
+    if ($<CONFIG> STREQUAL "Debug")
         set(CEF_RESOURCE_CONFIG "Debug")
+    else()
+        # for other config types (likely Release or RelWithDebInfo or such)
+        # just choose the release resources
+        set(CEF_RESOURCE_CONFIG "Release")
     endif()
 
     if (NOT CEF_USE_SANDBOX)
