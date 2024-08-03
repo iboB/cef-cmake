@@ -102,9 +102,15 @@ if(CEF_CMAKE_OS_LINUX)
         debug ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Debug/libcef.so
         optimized ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Release/libcef.so
     )
+    
+    if ($<CONFIG> STREQUAL "RelWithDebInfo" OR $<CONFIG> STREQUAL "Release" OR $<CONFIG> STREQUAL "MinSizeRel")
+        set(CEF_RESOURCE_CONFIG "Release")
+    else()
+        set(CEF_RESOURCE_CONFIG "Debug")
+    endif()
 
     if (NOT CEF_USE_SANDBOX)
-        set(CEF_SANDBOX_BINARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/chrome-sandbox)
+        set(CEF_SANDBOX_BINARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/chrome-sandbox)
     endif()
 
     add_custom_command(TARGET cefdll_wrapper POST_BUILD
@@ -113,14 +119,14 @@ if(CEF_CMAKE_OS_LINUX)
             make_directory ${CEF_CMAKE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${CEF_SANDBOX_BINARY_PATH}
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libcef.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libEGL.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libGLESv2.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/snapshot_blob.bin
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/v8_context_snapshot.bin
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/vk_swiftshader_icd.json
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libvk_swiftshader.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/$<CONFIG>/libvulkan.so.1
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libcef.so
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libEGL.so
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libGLESv2.so
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/snapshot_blob.bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/v8_context_snapshot.bin
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vk_swiftshader_icd.json
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libvk_swiftshader.so
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libvulkan.so.1
             ${CEF_CMAKE_OUTPUT_DIR}
     )
 
