@@ -103,7 +103,7 @@ if(CEF_CMAKE_OS_LINUX)
         optimized ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Release/libcef.so
     )
     
-    if ($<CONFIG> STREQUAL "RelWithDebInfo" OR $<CONFIG> STREQUAL "Release" OR $<CONFIG> STREQUAL "MinSizeRel")
+    if (NOT $<CONFIG> STREQUAL "Debug")
         set(CEF_RESOURCE_CONFIG "Release")
     else()
         set(CEF_RESOURCE_CONFIG "Debug")
@@ -155,7 +155,7 @@ elseif(CEF_CMAKE_OS_WINDOWS)
         optimized ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Release/libcef.lib
     )
 
-    if ($<CONFIG> STREQUAL "RelWithDebInfo" OR $<CONFIG> STREQUAL "Release" OR $<CONFIG> STREQUAL "MinSizeRel")
+    if (NOT $<CONFIG> STREQUAL "Debug")
         set(CEF_RESOURCE_CONFIG "Release")
     else()
         set(CEF_RESOURCE_CONFIG "Debug")
