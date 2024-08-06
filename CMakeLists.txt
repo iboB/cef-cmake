@@ -22,6 +22,14 @@ if(NOT CEF_CMAKE_OUTPUT_DIR)
     set(CEF_CMAKE_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
+if(NOT CEF_CMAKE_LOCALES_OUTPUT_DIR)
+    set(CEF_CMAKE_LOCALES_OUTPUT_DIR ${CEF_CMAKE_OUTPUT_DIR}/locales)
+endif()
+
+if(NOT CEF_CMAKE_RESOURCES_OUTPUT_DIR)
+    set(CEF_CMAKE_RESOURCES_OUTPUT_DIR ${CEF_CMAKE_OUTPUT_DIR})
+endif()
+
 if(CEF_CMAKE_OS_LINUX)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(cefName cef_binary_${CEF_VERSION}_linux64)
@@ -84,16 +92,30 @@ add_custom_command(TARGET cefdll_wrapper POST_BUILD
     COMMENT "cefdll_wrapper: Copying CEF resources"
     COMMAND ${CMAKE_COMMAND} -E
         make_directory ${CEF_CMAKE_OUTPUT_DIR}
+        make_directory ${CEF_CMAKE_LOCALES_OUTPUT_DIR}
+        make_directory ${CEF_CMAKE_RESOURCES_OUTPUT_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/locales
-        ${CEF_CMAKE_OUTPUT_DIR}/locales
+        ${CEF_CMAKE_LOCALES_OUTPUT_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/chrome_100_percent.pak
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/chrome_200_percent.pak
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/resources.pak
         ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/icudtl.dat
-        ${CEF_CMAKE_OUTPUT_DIR}
+        ${CEF_CMAKE_RESOURCES_OUTPUT_DIR}
 )
+
+# We have to copy the icudtl.dat file to the same directory as libcef.so (i.e. CEF_CMAKE_OUTPUT_DIR),
+# else it will cause a crash. CEF always expects it to be there. 
+# See: https://www.magpcss.org/ceforum/viewtopic.php?f=6&t=16916#p42557
+if (NOT ${CEF_CMAKE_RESOURCES_OUTPUT_DIR} STREQUAL ${CEF_CMAKE_OUTPUT_DIR})
+    add_custom_command(TARGET cefdll_wrapper POST_BUILD
+        COMMENT "cefdll_wrapper: Copying icudtl.dat"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/Resources/icudtl.dat
+            ${CEF_CMAKE_OUTPUT_DIR}
+    )
+endif()
 
 if(CEF_CMAKE_OS_LINUX)
     target_link_libraries(cefdll_wrapper INTERFACE
