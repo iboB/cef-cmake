@@ -10,7 +10,7 @@ if(NOT CEF_CMAKE_INCLUDED)
 endif()
 
 if(NOT CEF_VERSION)
-    set(CEF_VERSION 126.2.18+g3647d39+chromium-126.0.6478.183)
+    set(CEF_VERSION 140.1.14+geb1c06e+chromium-140.0.7339.185)
     message(STATUS "CEF-CMake: CEF_VERSION not specified. Defaulting to ${CEF_VERSION}")
 endif()
 
@@ -138,7 +138,7 @@ if(CEF_CMAKE_OS_LINUX)
         set(CEF_RESOURCE_CONFIG "Release")
     endif()
 
-    if (NOT CEF_USE_SANDBOX)
+    if (CEF_USE_SANDBOX)
         set(CEF_SANDBOX_BINARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/chrome-sandbox)
     endif()
 
@@ -151,7 +151,6 @@ if(CEF_CMAKE_OS_LINUX)
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libcef.so
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libEGL.so
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libGLESv2.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/snapshot_blob.bin
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/v8_context_snapshot.bin
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vk_swiftshader_icd.json
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libvk_swiftshader.so
@@ -202,7 +201,6 @@ elseif(CEF_CMAKE_OS_WINDOWS)
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libcef.dll
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libEGL.dll
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/libGLESv2.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/snapshot_blob.bin
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/v8_context_snapshot.bin
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vk_swiftshader_icd.json
             ${CMAKE_CURRENT_SOURCE_DIR}/${cefName}/${CEF_RESOURCE_CONFIG}/vk_swiftshader.dll
